@@ -1,0 +1,63 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: 'One row per customer with lifetime order stats.'
+    columns:
+      - name: customer_id
+        description: 'Primary key.'
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_products
+    description: 'Product catalog with margin percent.'
+    columns:
+      - name: product_id
+        description: 'Primary key.'
+        tests:
+          - unique
+          - not_null
+
+  - name: fct_orders
+    description: 'Order line-item fact with revenue, cost, and profit.'
+    columns:
+      - name: order_item_id
+        description: 'Primary key.'
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_id
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+      - name: product_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_products')
+                field: product_id
+      - name: order_status
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['completed', 'cancelled', 'returned']
+
+  - name: mart_monthly_kpis
+    description: 'Monthly revenue, profit, AOV, and margin — BI-ready.'
+    columns:
+      - name: month
+        tests:
+          - unique
+          - not_null
