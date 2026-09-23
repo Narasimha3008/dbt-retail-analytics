@@ -1,0 +1,68 @@
+version: 2
+
+seeds:
+  - name: raw_customers
+    description: 'Raw customer records (seeded CSV).'
+    columns:
+      - name: customer_id
+        description: 'Primary key.'
+        tests:
+          - unique
+          - not_null
+
+  - name: raw_products
+    description: 'Raw product catalog (seeded CSV).'
+    columns:
+      - name: product_id
+        description: 'Primary key.'
+        tests:
+          - unique
+          - not_null
+
+  - name: raw_orders
+    description: 'Raw order headers (seeded CSV).'
+    columns:
+      - name: order_id
+        description: 'Primary key.'
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: 'Foreign key to raw_customers.'
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('raw_customers')
+                field: customer_id
+      - name: order_status
+        description: 'completed | cancelled | returned'
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['completed', 'cancelled', 'returned']
+
+  - name: raw_order_items
+    description: 'Raw order line items (seeded CSV).'
+    columns:
+      - name: order_item_id
+        description: 'Primary key.'
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: 'Foreign key to raw_orders.'
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('raw_orders')
+                field: order_id
+      - name: product_id
+        description: 'Foreign key to raw_products.'
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('raw_products')
+                field: product_id
